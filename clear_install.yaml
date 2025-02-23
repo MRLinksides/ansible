@@ -1,0 +1,178 @@
+---
+- name: New server setup
+  hosts: all
+  become: true
+  vars_files:
+    - vars/default.yaml  # Подключаем файл с переменными, где хранятся настройки, например, пароли и другие параметры.
+
+  tasks:
+    - name: Update apt cache and install aptitude
+      apt:
+        name: aptitude  # Устанавливаем пакет aptitude (альтернатива apt-get).
+        update_cache: yes  # Обновляем кэш пакетов перед установкой.
+        state: latest  # Устанавливаем последнюю версию пакета.
+        force_apt_get: yes  # Принудительно используем apt-get вместо aptitude.
+
+    - name: Install required packages
+      apt:
+        name:  # Устанавливаем список пакетов.
+          - rsyslog  # Системный логгер.
+          - redis-server  # Сервер Redis.
+          - whiptail  # Утилита для создания текстовых интерфейсов.
+          - supervisor  # Система управления процессами.
+          - nginx-extras  # Веб-сервер Nginx с дополнительными модулями.
+          - percona-toolkit  # Набор инструментов для работы с MySQL.
+          - memcached  # Кэширующий сервер.
+          - make  # Утилита для сборки программ.
+          - mmdb-bin  # Утилиты для работы с MaxMind DB.
+          - logrotate  # Утилита для ротации логов.
+          - libnetfilter-cthelper0  # Библиотека для работы с Netfilter.
+          - libgd-tools  # Утилиты для работы с библиотекой GD.
+          - gsfonts  # Шрифты Ghostscript.
+          - ghostscript  # Интерпретатор PostScript и PDF.
+          - geoip-database  # База данных GeoIP.
+          - geoip-bin  # Утилиты для работы с GeoIP.
+          - etckeeper  # Система контроля версий для /etc.
+          - dialog  # Утилита для создания диалоговых окон.
+          - apt-utils  # Дополнительные утилиты для работы с APT.
+          - apt-show-versions  # Утилита для отображения версий пакетов.
+          - apache2-utils  # Утилиты для Apache.
+          - patch  # Утилита для применения патчей.
+          - apt-file  # Утилита для поиска файлов в пакетах.
+          - net-tools  # Сетевые утилиты (ifconfig, netstat и др.).
+          - nginx  # Веб-сервер Nginx.
+          - mariadb-server  # Сервер базы данных MariaDB.
+          - python3-pymysql  # Библиотека Python для работы с MySQL.
+          - php-fpm  # PHP FastCGI Process Manager.
+          - php-mysql  # Модуль PHP для работы с MySQL.
+          - shorewall  # Фаервол.
+          - iptest  # Утилита для тестирования IP.
+          - bind9-dnsutils  # Утилиты для работы с DNS.
+          - certbot  # Утилита для получения SSL-сертификатов Let's Encrypt.
+          - htop  # Интерактивный монитор процессов.
+          - strace  # Утилита для трассировки системных вызовов.
+          - pigz  # Многопоточный компрессор.
+          - xz-utils  # Утилиты для работы с архивами XZ.
+          - php8.2-apcu  # Кэш для PHP.
+          - php8.2-bcmath  # Модуль PHP для работы с большими числами.
+          - php8.2-bz2  # Модуль PHP для работы с архивами BZ2.
+          - php8.2-cli  # Командная строка PHP.
+          - php8.2-common  # Общие файлы PHP.
+          - php8.2-curl  # Модуль PHP для работы с cURL.
+          - php8.2-fpm  # PHP FastCGI Process Manager.
+          - php8.2-gd  # Модуль PHP для работы с графикой.
+          - php8.2-gmp  # Модуль PHP для работы с большими числами.
+          - php8.2-igbinary  # Модуль PHP для бинарной сериализации.
+          - php8.2-imagick  # Модуль PHP для работы с ImageMagick.
+          - php8.2-imap  # Модуль PHP для работы с IMAP.
+          - php8.2-intl  # Модуль PHP для интернационализации.
+          - php8.2-mbstring  # Модуль PHP для работы с многобайтовыми строками.
+          - php8.2-mcrypt  # Модуль PHP для шифрования.
+          - php8.2-memcached  # Модуль PHP для работы с Memcached.
+          - php8.2-msgpack  # Модуль PHP для работы с MessagePack.
+          - php8.2-mysql  # Модуль PHP для работы с MySQL.
+          - php8.2-opcache  # Модуль PHP для кэширования опкодов.
+          - php8.2-readline  # Модуль PHP для работы с командной строкой.
+          - php8.2-redis  # Модуль PHP для работы с Redis.
+          - php8.2-soap  # Модуль PHP для работы с SOAP.
+          - php8.2-sqlite3  # Модуль PHP для работы с SQLite.
+          - php8.2-tidy  # Модуль PHP для работы с HTML.
+          - php8.2-xml  # Модуль PHP для работы с XML.
+          - php8.2-xmlrpc  # Модуль PHP для работы с XML-RPC.
+          - php8.2-yaml  # Модуль PHP для работы с YAML.
+          - php8.2-zip  # Модуль PHP для работы с ZIP-архивами.
+          - php8.2  # Основной пакет PHP 8.2.
+          - libmagickcore-6.q16-6-extra  # Дополнительные библиотеки ImageMagick.
+        state: latest  # Устанавливаем последние версии пакетов.
+        update_cache: yes  # Обновляем кэш пакетов перед установкой.
+
+- name: Docker setup
+  hosts: all
+  become: yes
+  vars:
+    docker_group: docker  # Имя группы для Docker.
+
+  tasks:
+    - name: Install dependencies
+      apt:
+        name:
+          - apt-transport-https  # Поддержка HTTPS для APT.
+          - ca-certificates  # Сертификаты для проверки SSL.
+          - lsb-release  # Утилита для получения информации о дистрибутиве.
+          - gnupg  # Утилита для работы с GPG.
+        state: latest  # Устанавливаем последние версии пакетов.
+        update_cache: yes  # Обновляем кэш пакетов перед установкой.
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: "https://download.docker.com/linux/{{ ansible_os_family | lower }}/gpg"  # Добавляем GPG-ключ Docker.
+        state: present  # Убеждаемся, что ключ присутствует.
+
+    - name: Get DEB architecture
+      shell: dpkg --print-architecture  # Получаем архитектуру системы.
+      register: deb_architecture  # Сохраняем результат в переменную deb_architecture.
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch={{ deb_architecture.stdout }}] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"  # Добавляем репозиторий Docker.
+        state: present  # Убеждаемся, что репозиторий присутствует.
+        filename: docker  # Имя файла для репозитория.
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce  # Docker Community Edition.
+          - docker-ce-cli  # CLI для Docker.
+          - containerd.io  # Контейнерная среда.
+          - docker-compose  # Утилита для управления многоконтейнерными приложениями.
+          - docker-compose-plugin  # Плагин для Docker Compose.
+        state: latest  # Устанавливаем последние версии пакетов.
+        update_cache: yes  # Обновляем кэш пакетов перед установкой.
+
+    - name: Start and enable Docker service
+      service:
+        name: docker  # Управляем службой Docker.
+        enabled: yes  # Включаем автозапуск службы.
+        state: started  # Запускаем службу.
+
+    - name: Create docker group
+      group:
+        name: "{{ docker_group }}"  # Создаем группу для Docker.
+        state: present  # Убеждаемся, что группа существует.
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"  # Добавляем текущего пользователя в группу Docker.
+        groups: "{{ docker_group }}"  # Указываем группу.
+        append: yes  # Добавляем пользователя в группу, не удаляя из других групп.
+
+- name: MySQL setup
+  hosts: all
+  become: yes
+  vars_files:
+    - vars/default.yaml  # Подключаем файл с переменными.
+
+  tasks:
+    - name: Set MySQL root password
+      mysql_user:
+        name: root  # Устанавливаем пароль для пользователя root.
+        password: "{{ mysql_root_password }}"  # Пароль берется из переменной.
+        login_unix_socket: /var/run/mysqld/mysqld.sock  # Используем сокет для подключения.
+      no_log: true  # Скрываем вывод пароля в логах.
+
+    - name: Remove anonymous users
+      mysql_user:
+        name: ''  # Удаляем анонимных пользователей.
+        host_all: yes  # Удаляем всех анонимных пользователей.
+        state: absent  # Убеждаемся, что пользователи удалены.
+        login_user: root  # Подключаемся как root.
+        login_password: "{{ mysql_root_password }}"  # Используем пароль root.
+      no_log: true  # Скрываем вывод пароля в логах.
+
+    - name: Remove MySQL test database
+      mysql_db:
+        name: test  # Удаляем тестовую базу данных.
+        state: absent  # Убеждаемся, что база данных удалена.
+        login_user: root  # Подключаемся как root.
+        login_password: "{{ mysql_root_password }}"  # Используем пароль root.
+      no_log: true  # Скрываем вывод пароля в логах.
