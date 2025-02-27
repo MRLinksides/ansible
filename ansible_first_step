@@ -7,7 +7,7 @@
 
 Пример настройки безпарольного sudo в файле /etc/sudoers:
 bash
-Copy
+
 
 username ALL=(ALL) NOPASSWD: ALL
 
@@ -18,7 +18,6 @@ username ALL=(ALL) NOPASSWD: ALL
 
 Пример в инвентарном файле:
 ini
-Copy
 
 [webservers]
 server1 ansible_user=username
@@ -26,7 +25,6 @@ server2 ansible_user=username
 
 Или в playbook:
 yaml
-Copy
 
 - hosts: all
   become: yes
@@ -61,7 +59,7 @@ Copy
 
         В инвентарном файле укажите пользователя:
         ini
-        Copy
+         
 
         [webservers]
         server1 ansible_user=ansible_user
@@ -73,7 +71,7 @@ Copy
 
 Проверьте, что Ansible может подключиться к узлам и выполнить команды:
 bash
-Copy
+ 
 
 ansible all -m ping
 
